@@ -39,7 +39,7 @@ private:
     User *current_user = nullptr;
     Admin *current_admin = nullptr;
 
-    vector<Book> searching_year(int year) // 用年去找 ok
+    vector<Book> searching_year(int year) // 用年份去找要的書
     {
         vector<Book> result;
         for(int i = 0; i < books.size(); ++i)
@@ -47,11 +47,11 @@ private:
             if(books[i].year == year)
                 result.push_back(books[i]);
         }
-        sorting_title(result);
+        sorting_title(result); // return之前先sort一下
         return result;
     }
 
-    void sorting_title(vector<Book> &result) // 用insertion sort排字典序 ok
+    void sorting_title(vector<Book> &result) // 用insertion sort排字典序
     {
         for (int i = 1; i < result.size(); ++i) 
         {
@@ -66,7 +66,7 @@ private:
         }
     }
 
-    int finding_book(const string &title) // 找書 ok
+    int finding_book(const string &title) // 找書的位置
     {
         for(int i = 0; i < books.size(); ++i)
             if(books[i].title == title)
@@ -74,14 +74,14 @@ private:
         return -1;
     }
 
-    int finding_user(const string &username)
+    int finding_user(const string &username) // 找看看有沒有重名的user
     {
         for(int i = 0; i < users.size(); ++i)
             if(users[i].username == username)
                 return i;
         return -1;
     }
-    int finding_admin(const string &adminname)
+    int finding_admin(const string &adminname) // 找看看有沒有重名的admin
     {
         for(int i = 0; i < admins.size(); ++i)
             if(admins[i].adminname == adminname)
@@ -90,7 +90,7 @@ private:
     }
 
 public:
-    void registering_user()
+    void registering_user() // user註冊
     {
         string username, password1, password2;
         cout << "Enter Username: ";
@@ -105,10 +105,10 @@ public:
             while(true)
             {
                 cout << "Enter the password again: ";
-                cin >> password2;
+                cin >> password2; // 密碼要確認一次
                 if(password1 == password2)
                 {
-                    users.push_back(User(username, password1));
+                    users.push_back(User(username, password1)); // 建立新用戶
                     cout << "User " << username << " has been created successfully.\n";
                     return;
                 }
@@ -118,7 +118,7 @@ public:
         }
     }
 
-    void registering_admin()
+    void registering_admin() // admin註冊
     {
         string adminname, password1, password2;
         cout << "Enter Adminname: ";
@@ -133,10 +133,10 @@ public:
             while(true)
             {
                 cout << "Enter the password again: ";
-                cin >> password2;
+                cin >> password2; // 密碼要確認一次
                 if(password1 == password2)
                 {
-                    admins.push_back(Admin(adminname, password1));
+                    admins.push_back(Admin(adminname, password1)); // 建立新admin
                     cout << "Admin " << adminname << " has been created successfully.\n";
                     return;
                 }
@@ -145,14 +145,14 @@ public:
             }
         }
     }
-    bool login_user()
+    bool login_user() // user login
     {
         string username, password;
         cout << "Enter username: ";
         cin >> username;
         cout << "Enter password: ";
         cin >> password;
-        int idx = finding_user(username);
+        int idx = finding_user(username); // 找看看user是否存在
         if(idx != -1 && users[idx].password == password)
         {
             current_user = &users[idx];
@@ -166,14 +166,14 @@ public:
         }
     }
 
-    bool login_admin()
+    bool login_admin() // admin login
     {
         string adminname, password;
         cout << "Enter adminname: ";
         cin >> adminname;
         cout << "Enter password: ";
         cin >> password;
-        int idx = finding_admin(adminname);
+        int idx = finding_admin(adminname); // 找看看admin是否存在
         if(idx != -1 && admins[idx].password == password)
         {
             current_admin = &admins[idx];
@@ -187,19 +187,19 @@ public:
         }
     }
 
-    void logout_user()
+    void logout_user() // user登出
     {
         cout << "Logout: " << current_user->username << "\n";
         current_user = nullptr;
     }
 
-    void logout_admin()
+    void logout_admin() // admin登出
     {
         cout << "Logout: " << current_admin->adminname << "\n";
         current_admin = nullptr;
     }
 
-    void adding() // 加書 ok
+    void adding() // 加一本書
     {
         string title, author;
         int year, number;
@@ -222,32 +222,24 @@ public:
         cout << "The book has been added to the system.\n";
     }
 
-    void searching() // 找書 ok
+    void searching() // 用年份找書
     {
-        cout << "Search by:\n";
-        cout << "1. Year";
-
-        int choice;
-        cin >> choice;
-
-        if(choice == 1)
+        cout << "Enter Year: ";
+        int year;
+        cin >> year;
+        cin.ignore();
+        vector<Book> found = searching_year(year);
+        if(found.empty()) cout << "There is no book published in " << year << ".\n";
+        else
         {
-            cout << "Enter Year: ";
-            int year;
-            cin >> year;
-            cin.ignore();
-            vector<Book> found = searching_year(year);
-            if(found.empty()) cout << "There is no book published in " << year << ".\n";
-            else
-            {
-                cout << "Name\tAuthor\tYear\tNumber of Available Copies\n";
-                for(auto &i : found)
-                    cout << i.title << "\t" << i.author << "\t" << i.year << "\t" << i.number << "\n";
-            }
+            cout << "Name\tAuthor\tYear\tNumber of Available Copies\n";
+            for(auto &i : found)
+                cout << i.title << "\t" << i.author << "\t" << i.year << "\t" << i.number << "\n";
         }
+        
     }
     
-    void checking() // 借書 ok
+    void checking() // 借書
     {
         string title;
         cout << "Book Name: ";
@@ -264,7 +256,7 @@ public:
         }
     }
     
-    void returning() // 還書 ok
+    void returning() // 還書
     {
         string title;
         cout << "Book Name: ";
@@ -279,7 +271,7 @@ public:
         }
     }
 
-    void listing() // 列出所有書 ok
+    void listing() // 列出所有書 一樣按照字典序
     {
         if(books.empty()) cout << "There is no any book.\n";
         else
@@ -292,27 +284,13 @@ public:
         }
     }
 
-    void record_user()
+    void record_user() // 記錄user的opertaion
     {
-        cout << "You have borrwowed: \n";
-        if(current_user->record.empty()) cout << "None\n";
-        else
-        {
-            cout << "Name\tAuthor\tYear\tNumber of Available Copies\n";
-            for(auto &i : current_user->record)
-                    cout << i.title << "\t" << i.author << "\t" << i.year << "\t" << i.number << "\n";
-        }
+        
     }
-    void record_admin()
+    void record_admin() // 記錄admin的operation
     {
-        cout << "You have borrwowed: \n";
-        if(current_admin->record.empty()) cout << "None\n";
-        else
-        {
-            cout << "Name\tAuthor\tYear\tNumber of Available Copies\n";
-            for(auto &i : current_admin->record)
-                    cout << i.title << "\t" << i.author << "\t" << i.year << "\t" << i.number << "\n";
-        }
+        
     }
 };
 
@@ -323,7 +301,7 @@ int main()
     bool admin_logged = false;
     while(true)
     {
-        if(admin_logged) // admin
+        if(admin_logged) // admin登入後
         {
             cout << "1. Add a book.\n";
             cout << "2. Search a book by published year.\n";
@@ -345,7 +323,7 @@ int main()
             }
 
         }
-        else if(user_logged) // user
+        else if(user_logged) // user登入後
         {
             cout << "1. Check out a book.\n";
             cout << "2. Return a book.\n";
@@ -362,7 +340,7 @@ int main()
                 user_logged = false;
             }
         }
-        else
+        else // 沒有人登入時
         {
             cout << "\\Welcome to Library Management System/\n";
             cout << "1. User Register.\n";
