@@ -45,6 +45,14 @@ private:
         }
     }
 
+    int finding(const string &title)
+    {
+        for(int i = 0; i < books.size(); ++i)
+            if(books[i].title == title)
+                return i;
+        return -1;
+    }
+
 public:
     void adding() // 加書
     {
@@ -94,9 +102,50 @@ public:
         }
     }
     
-    void checking();
-    void returning();
-    void listing();
+    void checking()
+    {
+        string title;
+        cout << "Book Name: ";
+        cin >> title;
+        int idx = finding(title);
+        if(idx == -1) 
+            cout << "The Book can't be found.\n";
+        else if(books[idx].number <= 0) 
+            cout << "All books have been lent out";
+        else
+        {   
+            books[idx].number--;
+            cout << "Borrow Successfully!\n";
+        }
+    }
+    
+    void returning()
+    {
+        string title;
+        cout << "Book Name: ";
+        cin >> title;
+        int idx = finding(title);
+        if(idx == -1)
+            cout << "Can't find this book.\n";
+        else
+        {
+            books[idx].number++;
+            cout << "Return Successfully!\n";
+        }
+    }
+
+    void listing()
+    {
+        if(books.empty()) cout << "There is no any book.\n";
+        else
+        {
+            vector<Book> copy = books;
+            sorting_title(copy);
+            cout << "Name\tAuthor\tYear\tNumber of Available Copies\n";
+            for(auto &i : copy)
+                    cout << i.title << "\t" << i.author << "\t" << i.year << "\t" << i.number << "\n";
+        }
+    }
 };
 
 int main()
@@ -126,6 +175,5 @@ int main()
             break;
         }
     }
-
     return 0;
 }
