@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 using namespace std;
 
 class Book // good
@@ -13,12 +14,32 @@ public:
     : title(t), year(y), author(a), number(n){}
 };
 
+class User // good 
+{
+public:
+    string username, password;
+    vector<Book> record;
+    User(string u, string p): username(u), password(p){}
+};
+
+class Admin // good 
+{
+public:
+    string adminname, password;
+    vector<Book> record;
+    Admin(string a, string p): adminname(a), password(p){}
+};
+
 class Library
 {
 private:
     vector<Book> books;
+    vector<User> users;
+    vector<Admin> admins;
+    User *current_user = nullptr;
+    Admin *current_admin = nullptr;
 
-    vector<Book> searching_year(int year) // 用年去找
+    vector<Book> searching_year(int year) // 用年去找 ok
     {
         vector<Book> result;
         for(int i = 0; i < books.size(); ++i)
@@ -30,7 +51,7 @@ private:
         return result;
     }
 
-    void sorting_title(vector<Book> &result) // 用insertion sort排字典序
+    void sorting_title(vector<Book> &result) // 用insertion sort排字典序 ok
     {
         for (int i = 1; i < result.size(); ++i) 
         {
@@ -45,7 +66,7 @@ private:
         }
     }
 
-    int finding(const string &title)
+    int finding_book(const string &title) // 找書 ok
     {
         for(int i = 0; i < books.size(); ++i)
             if(books[i].title == title)
@@ -53,8 +74,132 @@ private:
         return -1;
     }
 
+    int finding_user(const string &username)
+    {
+        for(int i = 0; i < users.size(); ++i)
+            if(users[i].username == username)
+                return i;
+        return -1;
+    }
+    int finding_admin(const string &adminname)
+    {
+        for(int i = 0; i < admins.size(); ++i)
+            if(admins[i].adminname == adminname)
+                return i;
+        return -1;
+    }
+
 public:
-    void adding() // 加書
+    void registering_user()
+    {
+        string username, password1, password2;
+        cout << "Enter Username: ";
+        cin >> username;
+        if(finding_user(username) != -1)
+            cout << "The user has already exist.\n";
+        else
+        {
+            cout << "Enter password: ";
+            cin >> password1;
+        
+            while(true)
+            {
+                cout << "Enter the password again: ";
+                cin >> password2;
+                if(password1 == password2)
+                {
+                    users.push_back(User(username, password1));
+                    cout << "User " << username << " has been created successfully.\n";
+                    return;
+                }
+                else
+                    cout << "Two passwords doesn't match, please try again.\n";
+            }
+        }
+    }
+
+    void registering_admin()
+    {
+        string adminname, password1, password2;
+        cout << "Enter Adminname: ";
+        cin >> adminname;
+        if(finding_user(adminname) != -1)
+            cout << "The admin has already exist.\n";
+        else
+        {
+            cout << "Enter password: ";
+            cin >> password1;
+        
+            while(true)
+            {
+                cout << "Enter the password again: ";
+                cin >> password2;
+                if(password1 == password2)
+                {
+                    admins.push_back(Admin(adminname, password1));
+                    cout << "Admin " << adminname << " has been created successfully.\n";
+                    return;
+                }
+                else
+                    cout << "Two passwords doesn't match, please try again.\n";
+            }
+        }
+    }
+    bool login_user()
+    {
+        string username, password;
+        cout << "Enter username: ";
+        cin >> username;
+        cout << "Enter password: ";
+        cin >> password;
+        int idx = finding_user(username);
+        if(idx != -1 && users[idx].password == password)
+        {
+            current_user = &users[idx];
+            cout << "Login successfully. Welcome, " << current_user->username << "!\n";
+            return true;
+        }
+        else
+        {
+            cout << "Wrong username or password\n";
+            return false;
+        }
+    }
+
+    bool login_admin()
+    {
+        string adminname, password;
+        cout << "Enter adminname: ";
+        cin >> adminname;
+        cout << "Enter password: ";
+        cin >> password;
+        int idx = finding_admin(adminname);
+        if(idx != -1 && admins[idx].password == password)
+        {
+            current_admin = &admins[idx];
+            cout << "Login successfully. Welcome, " << current_admin->adminname << "!\n";
+            return true;
+        }
+        else
+        {
+            cout << "Wrong username or password\n";
+            return false;
+        }
+    }
+
+    void logout_user()
+    {
+        cout << "Logout: " << current_user->username << "\n";
+        current_user = nullptr;
+    }
+
+    void logout_admin()
+    {
+        cout << "Logout: " << current_admin->adminname << "\n";
+        current_admin = nullptr;
+    }
+
+    void adding() // 加書 ok
     {
         string title, author;
         int year, number;
@@ -77,7 +222,7 @@ public:
         cout << "The book has been added to the system.\n";
     }
 
-    void searching() // 找書
+    void searching() // 找書 ok
     {
         cout << "Search by:\n";
         cout << "1. Year";
@@ -102,12 +247,12 @@ public:
         }
     }
     
-    void checking()
+    void checking() // 借書 ok
     {
         string title;
         cout << "Book Name: ";
         cin >> title;
-        int idx = finding(title);
+        int idx = finding_book(title);
         if(idx == -1) 
             cout << "The Book can't be found.\n";
         else if(books[idx].number <= 0) 
@@ -119,12 +264,12 @@ public:
         }
     }
     
-    void returning()
+    void returning() // 還書 ok
     {
         string title;
         cout << "Book Name: ";
         cin >> title;
-        int idx = finding(title);
+        int idx = finding_book(title);
         if(idx == -1)
             cout << "Can't find this book.\n";
         else
@@ -134,7 +279,7 @@ public:
         }
     }
 
-    void listing()
+    void listing() // 列出所有書 ok
     {
         if(books.empty()) cout << "There is no any book.\n";
         else
@@ -146,33 +291,93 @@ public:
                     cout << i.title << "\t" << i.author << "\t" << i.year << "\t" << i.number << "\n";
         }
     }
+
+    void record_user()
+    {
+        cout << "You have borrwowed: \n";
+        if(current_user->record.empty()) cout << "None\n";
+        else
+        {
+            cout << "Name\tAuthor\tYear\tNumber of Available Copies\n";
+            for(auto &i : current_user->record)
+                    cout << i.title << "\t" << i.author << "\t" << i.year << "\t" << i.number << "\n";
+        }
+    }
+    void record_admin()
+    {
+        cout << "You have borrwowed: \n";
+        if(current_admin->record.empty()) cout << "None\n";
+        else
+        {
+            cout << "Name\tAuthor\tYear\tNumber of Available Copies\n";
+            for(auto &i : current_admin->record)
+                    cout << i.title << "\t" << i.author << "\t" << i.year << "\t" << i.number << "\n";
+        }
+    }
 };
 
 int main()
 {
     Library lib;
+    bool user_logged = false;
+    bool admin_logged = false;
     while(true)
     {
-        cout << "\\Welcome to Library Management System/\n";
-        cout << "1. Add a Book\n";
-        cout << "2. Search Books\n";
-        cout << "3. Check out a Book\n";
-        cout << "4. Return a Book\n";
-        cout << "5. List all books";
-        cout << "6. Exit\n";
-        cout << "Enter operation: ";
-        
-        int op;
-        cin >> op;
-        if(op == 1) lib.adding();
-        else if(op == 2) lib.searching();
-        else if(op == 3) lib.checking();
-        else if(op == 4) lib.returning();
-        else if(op == 5) lib.listing();
-        else if(op ==  6) 
+        if(admin_logged) // admin
         {
-            cout << "Bye Bye!\n";
-            break;
+            cout << "1. Add a book.\n";
+            cout << "2. Search a book by published year.\n";
+            cout << "3. Check out a book.\n";
+            cout << "4. Return a book;\n";
+            cout << "5. List all books.\n";
+            cout << "6. Log out.\n"; 
+            int user_op;
+            cin >> user_op;
+            if(user_op == 1) lib.adding();
+            else if(user_op == 2) lib.searching();
+            else if(user_op == 3) lib.checking();
+            else if(user_op == 4) lib.returning();
+            else if(user_op == 5) lib.listing();
+            else if(user_op == 6)
+            {
+                lib.logout_admin();
+                admin_logged = false;
+            }
+
+        }
+        else if(user_logged) // user
+        {
+            cout << "1. Check out a book.\n";
+            cout << "2. Return a book.\n";
+            cout << "3. List all books.\n";
+            cout << "4. Log out.\n";
+            int user_op;
+            cin >> user_op;
+            if(user_op == 1) lib.checking();
+            else if(user_op == 2) lib.returning();
+            else if(user_op == 3) lib.listing();
+            else if(user_op == 4)
+            { 
+                lib.logout_user();
+                user_logged = false;
+            }
+        }
+        else
+        {
+            cout << "\\Welcome to Library Management System/\n";
+            cout << "1. User Register.\n";
+            cout << "2. Admin Register.\n";
+            cout << "3. User Login.\n";
+            cout << "4. Admin Login.\n";
+            cout << "5. Exit.\n";
+        
+            int num; 
+            cin >> num;
+
+            if(num == 1) lib.registering_user();
+            if(num == 2) lib.registering_admin();
+            if(num == 3) user_logged = lib.login_user();
+            if(num == 4) admin_logged = lib.login_admin();
         }
     }
     return 0;
