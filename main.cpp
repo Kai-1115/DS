@@ -14,11 +14,19 @@ public:
     : title(t), year(y), author(a), number(n){}
 };
 
+class Record
+{
+public:
+    string operation, title, author;
+    int year;
+    Record(string o, string t, int y, string a): operation(o), title(t), year(y), author(a) {}
+};
+
 class User // good 
 {
 public:
     string username, password;
-    vector<Book> record;
+    vector<Record> record;
     User(string u, string p): username(u), password(p){}
 };
 
@@ -26,7 +34,7 @@ class Admin // good
 {
 public:
     string adminname, password;
-    vector<Book> record;
+    vector<Record> record;
     Admin(string a, string p): adminname(a), password(p){}
 };
 
@@ -43,10 +51,9 @@ private:
     {
         vector<Book> result;
         for(int i = 0; i < books.size(); ++i)
-        {
             if(books[i].year == year)
                 result.push_back(books[i]);
-        }
+        
         sorting_title(result); // return之前先sort一下
         return result;
     }
@@ -74,14 +81,14 @@ private:
         return -1;
     }
 
-    int finding_user(const string &username) // 找看看有沒有重名的user
+    int finding_user(const string &username) // 找user
     {
         for(int i = 0; i < users.size(); ++i)
             if(users[i].username == username)
                 return i;
         return -1;
     }
-    int finding_admin(const string &adminname) // 找看看有沒有重名的admin
+    int finding_admin(const string &adminname) // 找admin
     {
         for(int i = 0; i < admins.size(); ++i)
             if(admins[i].adminname == adminname)
@@ -95,8 +102,8 @@ public:
         string username, password1, password2;
         cout << "Enter Username: ";
         cin >> username;
-        if(finding_user(username) != -1)
-            cout << "The user has already exist.\n";
+        if(finding_user(username) != -1 && finding_admin(username) != -1)
+            cout << "The name has already exist. Try another.\n";
         else
         {
             cout << "Enter password: ";
@@ -123,8 +130,8 @@ public:
         string adminname, password1, password2;
         cout << "Enter Adminname: ";
         cin >> adminname;
-        if(finding_user(adminname) != -1)
-            cout << "The admin has already exist.\n";
+        if(finding_user(adminname) != -1 && finding_admin(adminname) != -1)
+            cout << "The name has already exist. Try another.\n";
         else
         {
             cout << "Enter password: ";
@@ -187,13 +194,13 @@ public:
         }
     }
 
-    void logout_user() // user登出
+    void logout_user() // user logout
     {
         cout << "Logout: " << current_user->username << "\n";
         current_user = nullptr;
     }
 
-    void logout_admin() // admin登出
+    void logout_admin() // admin logout
     {
         cout << "Logout: " << current_admin->adminname << "\n";
         current_admin = nullptr;
@@ -219,6 +226,7 @@ public:
         cin.ignore();
 
         books.push_back(Book(title, year, author, number));
+        current_admin->record.push_back(Record("Add",title,year,author));
         cout << "The book has been added to the system.\n";
     }
 
@@ -246,13 +254,21 @@ public:
         cin >> title;
         int idx = finding_book(title);
         if(idx == -1) 
+        {
             cout << "The Book can't be found.\n";
+            return;
+        }
         else if(books[idx].number <= 0) 
-            cout << "All books have been lent out";
+        {
+            cout << "All books have been lent out\n";
+            return;
+        }
         else
         {   
             books[idx].number--;
             cout << "Borrow Successfully!\n";
+            if(current_user) current_user->record.push_back(Record("Check out", books[idx].title, books[idx].year, books[idx].author));
+            if(current_admin) current_admin->record.push_back(Record("Check out", books[idx].title, books[idx].year, books[idx].author));
         }
     }
     
@@ -263,11 +279,16 @@ public:
         cin >> title;
         int idx = finding_book(title);
         if(idx == -1)
+        {
             cout << "Can't find this book.\n";
+            return;
+        }
         else
         {
             books[idx].number++;
             cout << "Return Successfully!\n";
+            if(current_user) current_user->record.push_back(Record("Return", books[idx].title, books[idx].year, books[idx].author));
+            if(current_admin) current_admin->record.push_back(Record("Return", books[idx].title, books[idx].year, books[idx].author));
         }
     }
 
@@ -284,13 +305,19 @@ public:
         }
     }
 
-    void record_user() // 記錄user的opertaion
+    void recording_user() // 記錄user的opertaions
     {
-        
+        cout << "--- User Records for " << current_user->username << " ---\n";
+        cout << "Operation\tTitle\tYear\tAuthor\n";
+        for(auto &i : current_user->record)
+            cout << i.operation << "\t" << i.title << "\t" << i.year << "\t" << i.author << "\n";
     }
-    void record_admin() // 記錄admin的operation
+    void recording_admin() // 記錄admin的operations
     {
-        
+        cout << "--- Admin Records for " << current_admin->adminname << " ---\n";
+        cout << "Operation\tTitle\tYear\tAuthor\n";
+        for(auto &i : current_admin->record)
+            cout << i.operation << "\t" << i.title << "\t" << i.year << "\t" << i.author << "\n";
     }
 };
 
@@ -308,7 +335,8 @@ int main()
             cout << "3. Check out a book.\n";
             cout << "4. Return a book;\n";
             cout << "5. List all books.\n";
-            cout << "6. Log out.\n"; 
+            cout << "6. Print Records.\n";
+            cout << "7. Log out.\n"; 
             int user_op;
             cin >> user_op;
             if(user_op == 1) lib.adding();
@@ -316,7 +344,8 @@ int main()
             else if(user_op == 3) lib.checking();
             else if(user_op == 4) lib.returning();
             else if(user_op == 5) lib.listing();
-            else if(user_op == 6)
+            else if(user_op == 6) lib.recording_admin();
+            else if(user_op == 7)
             {
                 lib.logout_admin();
                 admin_logged = false;
@@ -328,13 +357,15 @@ int main()
             cout << "1. Check out a book.\n";
             cout << "2. Return a book.\n";
             cout << "3. List all books.\n";
-            cout << "4. Log out.\n";
+            cout << "4. Print Records.\n";
+            cout << "5. Log out.\n";
             int user_op;
             cin >> user_op;
             if(user_op == 1) lib.checking();
             else if(user_op == 2) lib.returning();
             else if(user_op == 3) lib.listing();
-            else if(user_op == 4)
+            else if(user_op == 4) lib.recording_user();
+            else if(user_op == 5)
             { 
                 lib.logout_user();
                 user_logged = false;
@@ -353,9 +384,10 @@ int main()
             cin >> num;
 
             if(num == 1) lib.registering_user();
-            if(num == 2) lib.registering_admin();
-            if(num == 3) user_logged = lib.login_user();
-            if(num == 4) admin_logged = lib.login_admin();
+            else if(num == 2) lib.registering_admin();
+            else if(num == 3) user_logged = lib.login_user();
+            else if(num == 4) admin_logged = lib.login_admin();
+            else if(num == 5) break;
         }
     }
     return 0;
