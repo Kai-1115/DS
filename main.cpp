@@ -315,7 +315,6 @@ public:
     {
         cout << "--- Admin Records for " << current_admin->adminname << " ---\n";
         cout << "Operation" << "\t" << "Title" << "\t" << "Year" << "\t" << "Author\n";
-        for(auto &i : current_user->record)
         for(auto &i : current_admin->record)
             cout << i.operation << "\t" << i.title << "\t" << i.year << "\t" << i.author << "\n";
     }
