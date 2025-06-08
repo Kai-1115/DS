@@ -431,18 +431,20 @@ int main()
         }
         else if(user_logged) // user登入後
         {
-            cout << "1. Check out a book.\n";
-            cout << "2. Return a book.\n";
-            cout << "3. List all books.\n";
-            cout << "4. Print Records.\n";
-            cout << "5. Log out.\n";
+            cout << "1. Searching a book by published year.\n";
+            cout << "2. Check out a book.\n";
+            cout << "3. Return a book.\n";
+            cout << "4. List all books.\n";
+            cout << "5. Print Records.\n";
+            cout << "6. Log out.\n";
             int user_op;
             cin >> user_op;
-            if(user_op == 1) lib.checking();
-            else if(user_op == 2) lib.returning();
-            else if(user_op == 3) lib.listing();
-            else if(user_op == 4) lib.recording_user();
-            else if(user_op == 5)
+            if(user_op == 1) lib.searching();
+            else if(user_op == 2) lib.checking();
+            else if(user_op == 3) lib.returning();
+            else if(user_op == 4) lib.listing();
+            else if(user_op == 5) lib.recording_user();
+            else if(user_op == 6)
             { 
                 lib.logout_user();
                 user_logged = false;
