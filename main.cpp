@@ -189,7 +189,7 @@ public:
         }
         else
         {
-            cout << "Wrong username or password\n";
+            cout << "Wrong adminname or password\n";
             return false;
         }
     }
@@ -398,7 +398,7 @@ int main()
             cout << "1. Add a book.\n";
             cout << "2. Search a book by published year.\n";
             cout << "3. Check out a book.\n";
-            cout << "4. Return a book;\n";
+            cout << "4. Return a book.\n";
             cout << "5. List all books.\n";
             cout << "6. Print Records.\n";
             cout << "7. Personnel Management.\n";
