@@ -2,7 +2,7 @@
 #include <vector>
 using namespace std;
 
-class Book // good
+class Book
 {
 public:
     string title;
@@ -22,7 +22,7 @@ public:
     Record(string o, string t, int y, string a): operation(o), title(t), year(y), author(a) {}
 };
 
-class User // good 
+class User
 {
 public:
     string username, password;
@@ -30,7 +30,7 @@ public:
     User(string u, string p): username(u), password(p){}
 };
 
-class Admin // good 
+class Admin
 {
 public:
     string adminname, password;
@@ -38,7 +38,7 @@ public:
     Admin(string a, string p): adminname(a), password(p){}
 };
 
-class Library
+class Library 
 {
 private:
     vector<Book> books;
@@ -311,6 +311,7 @@ public:
         for(auto &i : current_user->record)
             cout << i.operation << "\t" << i.title << "\t" << i.year << "\t" << i.author << "\n";
     }
+    
     void recording_admin() // 記錄admin的operations
     {
         cout << "--- Admin Records for " << current_admin->adminname << " ---\n";
