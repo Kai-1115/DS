@@ -226,7 +226,7 @@ public:
         cin.ignore();
 
         books.push_back(Book(title, year, author, number));
-        current_admin->record.push_back(Record("Add",title,year,author));
+        current_admin->record.push_back(Record("Add      ",title,year,author));
         cout << "The book has been added to the system.\n";
     }
 
@@ -244,7 +244,6 @@ public:
             for(auto &i : found)
                 cout << i.title << "\t" << i.author << "\t" << i.year << "\t" << i.number << "\n";
         }
-        
     }
     
     void checking() // 借書
@@ -287,8 +286,8 @@ public:
         {
             books[idx].number++;
             cout << "Return Successfully!\n";
-            if(current_user) current_user->record.push_back(Record("Return", books[idx].title, books[idx].year, books[idx].author));
-            if(current_admin) current_admin->record.push_back(Record("Return", books[idx].title, books[idx].year, books[idx].author));
+            if(current_user) current_user->record.push_back(Record("Return   ", books[idx].title, books[idx].year, books[idx].author));
+            if(current_admin) current_admin->record.push_back(Record("Return   ", books[idx].title, books[idx].year, books[idx].author));
         }
     }
 
@@ -308,16 +307,82 @@ public:
     void recording_user() // 記錄user的opertaions
     {
         cout << "--- User Records for " << current_user->username << " ---\n";
-        cout << "Operation\tTitle\tYear\tAuthor\n";
+        cout << "Operation" << "\t" << "Title" << "\t" << "Year" << "\t" << "Author\n";
         for(auto &i : current_user->record)
             cout << i.operation << "\t" << i.title << "\t" << i.year << "\t" << i.author << "\n";
     }
     void recording_admin() // 記錄admin的operations
     {
         cout << "--- Admin Records for " << current_admin->adminname << " ---\n";
-        cout << "Operation\tTitle\tYear\tAuthor\n";
+        cout << "Operation" << "\t" << "Title" << "\t" << "Year" << "\t" << "Author\n";
+        for(auto &i : current_user->record)
         for(auto &i : current_admin->record)
             cout << i.operation << "\t" << i.title << "\t" << i.year << "\t" << i.author << "\n";
+    }
+
+    void upgrade_user()
+    {
+        cout << "Users: ";
+        for(auto &u : users) 
+            cout << u.username << " ";
+        cout << "\n";
+
+        cout << "Promote user: "; 
+        string name; 
+        cin >> name;
+
+        int i = finding_user(name);
+        if(i < 0) 
+        {
+            cout << "No such user.\n"; 
+            return;
+        }
+        admins.emplace_back(users[i].username, users[i].password);
+        users.erase(users.begin()+i);
+        cout << "Promoted.\n";
+    }
+
+    void downgrade_admin()
+    {
+        cout << "Admins: ";
+        for(auto &i : admins) 
+            cout << i.adminname << " ";
+        cout << "\n";
+
+        cout << "Demote admin: "; 
+        string name; 
+        cin >> name;
+
+        int i = finding_admin(name);
+        if(i < 0) 
+        {
+            cout << "No such admin.\n"; 
+            return;
+        }
+        users.emplace_back(admins[i].adminname, admins[i].password);
+        admins.erase(admins.begin()+i);
+        cout << "Demoted.\n";
+    }
+
+    void deleting_user()
+    {
+        cout << "Users: ";
+        for(auto &u : users) 
+            cout << u.username << " ";
+        cout << "\n";
+
+        cout << "Delete user: "; 
+        string name; 
+        cin >> name;
+
+        int i = finding_user(name);
+        if(i < 0)
+        { 
+            cout << "No such user.\n";
+            return; 
+        }
+        users.erase(users.begin() + i);
+        cout << "Deleted.\n";
     }
 };
 
@@ -336,7 +401,8 @@ int main()
             cout << "4. Return a book;\n";
             cout << "5. List all books.\n";
             cout << "6. Print Records.\n";
-            cout << "7. Log out.\n"; 
+            cout << "7. Personnel Management.\n";
+            cout << "8. Log out.\n"; 
             int user_op;
             cin >> user_op;
             if(user_op == 1) lib.adding();
@@ -345,7 +411,18 @@ int main()
             else if(user_op == 4) lib.returning();
             else if(user_op == 5) lib.listing();
             else if(user_op == 6) lib.recording_admin();
-            else if(user_op == 7)
+            else if(user_op == 7) 
+            {
+                cout << "1. Upgrade Users.\n";
+                cout << "2. Downgrade Admins.\n";
+                cout << "3. Delete Users.\n";
+                int ma;
+                cin >> ma;
+                if(ma == 1) lib.upgrade_user();
+                else if(ma == 2) lib.downgrade_admin();
+                else if(ma == 3) lib.deleting_user();
+            }
+            else if(user_op == 8)
             {
                 lib.logout_admin();
                 admin_logged = false;
